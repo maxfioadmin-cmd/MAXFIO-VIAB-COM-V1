@@ -1,3 +1,23 @@
+def extrair_pdf(file):
+    """Função para processar o PDF e extrair itens para o rascunho"""
+    itens = []
+    try:
+        with pdfplumber.open(io.BytesIO(file.read())) as pdf:
+            for page in pdf.pages:
+                text = page.extract_text()
+                if text:
+                    # Busca padrão: Código + Descrição + Qtd + Preço
+                    matches = re.findall(r'(\d{4,5})\s+(.*?)\s+(\d+)\s+([\d,.]+)', text)
+                    for m in matches:
+                        itens.append({
+                            "Código": m[0], 
+                            "Descrição": m[1], 
+                            "Qtd": float(m[2]), 
+                            "Preço_Un": float(m[3].replace('.','').replace(',','.'))
+                        })
+    except Exception as e:
+        st.error(f"Erro ao ler PDF: {e}")
+    return itens
 import streamlit as st
 import pandas as pd
 import numpy as np
