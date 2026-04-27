@@ -307,7 +307,22 @@ with tabs[0]:
                         pdf.cell(190, 7, f"{i['Código']} - {i['Descrição']} | Qtd: {i['Qtd']} | Preço: R${i['Preço Real']:.2f}", 0, 1)
                     pdf.ln(10); pdf.set_font("Arial", "B", 12)
                     pdf.cell(190, 10, f"TOTAL: R$ {v_rb:,.2f}", 0, 1, 'R')
-                    st.download_button("📥 Baixar PDF", pdf.output(dest='S'), f"Orc_{cli}.pdf")
+                    # 1. Gere o PDF normalmente
+                    pdf = FPDF()
+                    pdf.add_page()
+                    pdf.set_font("Arial", "B", 16)
+                    # ... (seu código de preenchimento do PDF) ...
+
+                    # 2. Capture o conteúdo como bytes (Forma correta para Streamlit + fpdf2)
+                    pdf_output = pdf.output() # No fpdf2, output() sem argumentos retorna bytes/bytearray
+
+                    # 3. Use no download_button
+                    st.download_button(
+                    label="📥 Baixar Orçamento em PDF",
+                    data=bytes(pdf_output), # Garantimos que são bytes
+                    file_name=f"Orcamento_{cli}.pdf",
+                    mime="application/pdf"
+                    )
                 else: st.error("Informe o cliente!")
 
         with cs:
